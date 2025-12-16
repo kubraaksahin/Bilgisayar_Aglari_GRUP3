@@ -27,7 +27,6 @@ def build_graph_from_teacher(node_csv: str, edge_csv: str) -> nx.Graph:
 
     G = nx.Graph()
 
-    # Düğümler
     for _, row in df_nodes.iterrows():
         nid = int(row["node_id"])
         G.add_node(
@@ -36,7 +35,6 @@ def build_graph_from_teacher(node_csv: str, edge_csv: str) -> nx.Graph:
             r_node=float(row["r_node"]),
         )
 
-    # Kenarlar
     for _, row in df_edges.iterrows():
         u = int(row["src"])
         v = int(row["dst"])
@@ -56,7 +54,6 @@ def main():
     edge_csv = TEACHER_EDGE_FILE
     demand_csv = TEACHER_DEMAND_FILE
 
-    # Talepleri oku
     df_demands = pd.read_csv(demand_csv, sep=";", decimal=",")
     G = build_graph_from_teacher(node_csv, edge_csv)
 
@@ -65,8 +62,7 @@ def main():
 
     results = []
 
-    # İstersen test için kısıtlayabilirsin:
-    # max_demands = min(10, len(df_demands))
+
     max_demands = len(df_demands)
 
     for demand_idx in range(max_demands):
@@ -75,8 +71,7 @@ def main():
         src = int(row["src"])
         dst = int(row["dst"])
 
-        # Hocanın DemandData dosyasındaki bant genişliği kolonunun adı:
-        # genelde "demand_mbps" oluyor; farklıysa burayı uyarlarsın.
+      
         if "demand_mbps" in df_demands.columns:
             B = float(row["demand_mbps"])
         elif "demand" in df_demands.columns:
