@@ -41,24 +41,19 @@ class AntColonyRouting:
 
         self.rng = random.Random(seed)
 
-        # Feromon tablosu (her kenar için)
         self.pheromone = {}
         self._initialize_pheromones()
 
-        # En iyi global çözüm
         self.best_path: Optional[List[int]] = None
         self.best_cost: float = float("inf")
 
-    # -------------------------------------------------------------------------
-    # Pheromone & heuristic
-    # -------------------------------------------------------------------------
+   
 
     def _edge_key(self, u: int, v: int) -> Tuple[int, int]:
         """Undirected graph için canonical edge key."""
         return (u, v) if u <= v else (v, u)
 
     def _initialize_pheromones(self) -> None:
-        """Tüm kenarlara başlangıç feromon değeri ata."""
         tau0 = 1.0
         for u, v in self.G.edges():
             self.pheromone[self._edge_key(u, v)] = tau0
@@ -67,24 +62,14 @@ class AntColonyRouting:
         return self.pheromone.get(self._edge_key(u, v), 1.0)
 
     def _heuristic(self, u: int, v: int) -> float:
-        """
-        Yerel sezgisel bilgi (eta).
-        Basit bir tanım: 1 / (edge_delay + 1).
-        """
+       
         edge_data = self.G.get_edge_data(u, v, {})
         delay = float(edge_data.get("delay_ms", 1.0))
-        # Delay küçüldükçe eta artsın
         return 1.0 / (delay + 1.0)
 
-    # -------------------------------------------------------------------------
-    # Cost hesaplama (metrics.evaluate_path ile)
-    # -------------------------------------------------------------------------
-
+ 
     def _path_cost(self, path: Optional[List[int]]) -> float:
-        """
-        Verilen path için TotalCost'u hesaplar.
-        Path geçersiz / None ise inf döner.
-        """
+      
 
         if not path or len(path) < 2:
             return float("inf")
@@ -100,15 +85,9 @@ class AntColonyRouting:
 
         return float(metrics["TotalCost"])
 
-    # -------------------------------------------------------------------------
-    # Çözüm üretimi (her karınca için path)
-    # -------------------------------------------------------------------------
 
     def _build_path_for_ant(self) -> Optional[List[int]]:
-        """
-        Bir karıncanın source'tan destination'a kadar
-        olası bir path oluşturmasını simüle eder.
-        """
+      
 
         current = self.source
         path = [current]
@@ -122,10 +101,8 @@ class AntColonyRouting:
             ]
 
             if not neighbors:
-                # Çıkış yok, karınca "sıkıştı"
                 return None
 
-            # Olasılık hesabı
             probabilities = []
             total_score = 0.0
             for v in neighbors:
@@ -136,10 +113,8 @@ class AntColonyRouting:
                 total_score += score
 
             if total_score <= 0.0:
-                # Çok uç durumda, tamamen rastgele seçim
                 next_node = self.rng.choice(neighbors)
             else:
-                # Rulet tekeri seçimi
                 r = self.rng.random() * total_score
                 cumulative = 0.0
                 next_node = neighbors[-1]
@@ -155,22 +130,17 @@ class AntColonyRouting:
             steps += 1
 
         if current != self.destination:
-            # Maks adım sayısına ulaştı ama hedefe varamadı
             return None
 
         return path
 
-    # -------------------------------------------------------------------------
-    # Pheromone güncelleme ve ana ACO döngüsü
-    # -------------------------------------------------------------------------
-
+  
     def _evaporate_pheromones(self) -> None:
         """Tüm kenarlarda feromon buharlaştır."""
         for key in list(self.pheromone.keys()):
             self.pheromone[key] *= (1.0 - self.rho)
 
     def _deposit_pheromones(self, path: List[int], cost: float) -> None:
-        """En iyi path üzerinde feromon arttır."""
         if not path or cost <= 0.0 or math.isinf(cost):
             return
         delta = self.q / cost
@@ -180,17 +150,11 @@ class AntColonyRouting:
             self.pheromone[key] = self.pheromone.get(key, 0.0) + delta
 
     def run(self) -> Tuple[Optional[List[int]], float]:
-        """
-        Ana ACO döngüsü:
-        - Her iterasyonda n_ants adet karınca path üretir.
-        - Her iterasyonda en iyi path'e göre feromon güncellenir.
-        - Global en iyi path ve cost döndürülür.
-        """
+       
         for _ in range(self.n_iterations):
             iteration_best_path: Optional[List[int]] = None
             iteration_best_cost: float = float("inf")
 
-            # Karıncaların path üretmesi
             for _ant in range(self.n_ants):
                 path = self._build_path_for_ant()
                 cost = self._path_cost(path)
@@ -199,16 +163,13 @@ class AntColonyRouting:
                     iteration_best_cost = cost
                     iteration_best_path = path
 
-            # Eğer bu iterasyonda kullanılabilir bir path bulunamadıysa skip
             if iteration_best_path is None or math.isinf(iteration_best_cost):
                 continue
 
-            # Global en iyi çözümü güncelle
             if iteration_best_cost < self.best_cost:
                 self.best_cost = iteration_best_cost
                 self.best_path = iteration_best_path
 
-            # Feromon güncellemesi
             self._evaporate_pheromones()
             self._deposit_pheromones(iteration_best_path, iteration_best_cost)
 
