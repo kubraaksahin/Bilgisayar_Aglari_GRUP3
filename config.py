@@ -1,4 +1,10 @@
-# config.py
+# config.
+
+# Hocanın dosyaları
+TEACHER_NODE_FILE = "BSM307_317_Guz2025_TermProject_NodeData.csv"
+TEACHER_EDGE_FILE = "BSM307_317_Guz2025_TermProject_EdgeData.csv"
+TEACHER_DEMAND_FILE = "BSM307_317_Guz2025_TermProject_DemandData.csv"
+
 
 # -----------------------------
 # 1) Ortak ağırlık seti (8 tane farklı ağırlık senaryosundan Tüm algoritmalar için seçilen Ağırlıklar)
