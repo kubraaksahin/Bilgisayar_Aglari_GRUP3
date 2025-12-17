@@ -186,11 +186,7 @@ def run_aco(
     seed: Optional[int] = None,
     **kwargs,
 ) -> Tuple[Optional[List[int]], float]:
-    """
-    Dışarıdan kullanılacak basit wrapper.
-    Ağırlıklar metrics/config tarafında ayarlı; burada sadece
-    ACO parametreleri (karınca, iterasyon, seed) kontrol ediliyor.
-    """
+
 
     if n_ants is None:
         n_ants = ACO_N_ANTS
