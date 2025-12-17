@@ -16,12 +16,7 @@ from config import (
 
 
 def build_graph_from_teacher(node_csv: str, edge_csv: str) -> nx.Graph:
-    """
-    Hocanın NodeData ve EdgeData dosyalarından grafı oluşturur.
-    NodeData kolonları: node_id; s_ms; r_node
-    EdgeData kolonları: src; dst; capacity_mbps; delay_ms; r_link
-    (Eğer sizde isimler farklıysa burayı ona göre düzeltin.)
-    """
+    
     df_nodes = pd.read_csv(node_csv, sep=";", decimal=",")
     df_edges = pd.read_csv(edge_csv, sep=";", decimal=",")
 
