@@ -10,7 +10,10 @@ class ProjeAgi:
         self.edge_file = edge_file
         self.G = nx.DiGraph()
         self.load_data()
-
+        
+    def get_graph(self):
+        return self.G
+    
     def load_data(self):
         print("--- Veriler Yukleniyor (CSV Uyumlu) ---")
         # 1. Dugumleri Yukle
@@ -88,4 +91,5 @@ if __name__ == "__main__":
     proje = ProjeAgi(node_csv, edge_csv)
     
     # 2. GÖRÜNTÜYÜ PNG OLARAK KAYDET
+
     proje.save_network_image()
