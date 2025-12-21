@@ -34,9 +34,15 @@ class ProjeAgi:
                                 capacity_mbps=float(row['capacity_mbps']), 
                                 delay_ms=float(row['delay_ms']), 
                                 r_link=float(row['r_link']))
-            print(f"Kenarlar tamam: {len(df_edges)}")
-
-
+              
+                # ---Çift Yönlü olması için ekledim  ---  
+                self.G.add_edge(int(row['dst']), int(row['src']), 
+                                capacity_mbps=float(row['capacity_mbps']), 
+                                delay_ms=float(row['delay_ms']), 
+                                r_link=float(row['r_link']))
+                
+        print(f"Kenarlar tamam: {len(df_edges)}")
+        
     # --- GÖRSELLEŞTİRME VE KAYDETME FONKSİYONU ---
     def save_network_image(self, output_filename="ag_topolojisi_yuksek_cozunurluk.png"):
         """
@@ -93,3 +99,4 @@ if __name__ == "__main__":
     # 2. GÖRÜNTÜYÜ PNG OLARAK KAYDET
 
     proje.save_network_image()
+
