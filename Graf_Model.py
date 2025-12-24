@@ -50,7 +50,7 @@ class ProjeAgi:
         Ekrana çizim yapmaz, doğrudan dosyaya yazar.
         """
         start_time = time.time()
-        print(f"--- Grafik Hazirlaniyor ({self.G.number_of_edges()} baglanti) ---")
+        print(f"--- Grafik Hazirlaniyor ---")
         print("Lutfen bekleyin, bu islem bilgisayar hizina gore 30-90 saniye surebilir...")
 
         # 1. Tuval boyutunu çok büyük ayarla (Piksellenmeyi önlemek için)
@@ -72,7 +72,7 @@ class ProjeAgi:
         # 4. Düğümleri çiz (Küçük ve mavi)
         nx.draw_networkx_nodes(self.G, pos, node_size=15, node_color='steelblue', alpha=0.8)
         
-        plt.title(f"Proje Ag Topolojisi\nNodes: {self.G.number_of_nodes()}, Edges: {self.G.number_of_edges()}", fontsize=16)
+        plt.title(f"Ağ Topolojisi {self.G.number_of_nodes()} Nodes ", fontsize=16)
         plt.axis('off') # Eksenleri gizle
 
         # 5. Dosyayı Yüksek Çözünürlükte (DPI=300) Kaydet
@@ -99,4 +99,5 @@ if __name__ == "__main__":
     # 2. GÖRÜNTÜYÜ PNG OLARAK KAYDET
 
     proje.save_network_image()
+
 
