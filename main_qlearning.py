@@ -93,7 +93,7 @@ def main():
         print(f"   Rota: {' -> '.join(map(str, path))}")
         print(f"   ------------------------------------------------")
 
-                # 1.5. Kullanılan Ağırlıkları Yazdır
+                # Kullanılan Ağırlıkları Yazdır
         print(f"   Kullanilan Agirliklar:")
         print(f"   • Delay:       {weights['w_delay']:.2f}")
         print(f"   • Reliability: {weights['w_rel']:.2f}")
@@ -129,4 +129,5 @@ def main():
         q_results = {'total_cost': float('inf')}
 
 if __name__ == "__main__":
+
     main()
