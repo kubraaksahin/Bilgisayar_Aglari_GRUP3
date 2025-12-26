@@ -1,0 +1,137 @@
+import pandas as pd
+import numpy as np
+import time
+import os
+import sys
+import contextlib
+import random
+
+class DummyFile(object):
+    def write(self, x): pass
+    def flush(self): pass
+
+@contextlib.contextmanager
+def suppress_stdout():
+    save_stdout = sys.stdout
+    sys.stdout = DummyFile()
+    yield
+    sys.stdout = save_stdout
+
+def load_scenarios(demand_file, node_count=250, limit=20):
+    scenarios = []
+    if os.path.exists(demand_file):
+        print(f" Demand verisi okunuyor: {demand_file}")
+        df = pd.read_csv(demand_file, sep=';', decimal=',')
+        for _, row in df.iterrows():
+            scenarios.append({
+                "src": int(row["src"]),
+                "dst": int(row["dst"]),
+                "bw": float(row["demand_mbps"])
+            })
+    else:
+        print("Demand dosyası bulunamadı, rastgele senaryolar üretiliyor...")
+        for _ in range(limit):
+            s = random.randint(0, node_count - 1)
+            d = random.randint(0, node_count - 1)
+            while s == d: d = random.randint(0, node_count - 1)
+            scenarios.append({"src": s, "dst": d, "bw": random.choice([100, 200, 500])})
+    return scenarios[:limit]
+
+def run_notebook_benchmark():
+    node_file = "BSM307_317_Guz2025_TermProject_NodeData.csv"
+    edge_file = "BSM307_317_Guz2025_TermProject_EdgeData.csv"
+    demand_file = "BSM307_317_Guz2025_TermProject_DemandData.csv"
+
+    print("Grafik Modeli Yükleniyor...")
+    proje = ProjeAgi(node_file, edge_file)
+    G = proje.get_graph()
+    evaluator = RouteEvaluator(G)
+    
+    scenarios = load_scenarios(demand_file, limit=20)
+    WEIGHTS = {'w_delay': 0.33, 'w_rel': 0.33, 'w_res': 0.34}
+    
+    results = []
+    print(f"\n🚀 TEST BAŞLIYOR: {len(scenarios)} Senaryo x 3 Algoritma x 5 Tekrar")
+    print("=" * 60)
+
+    for s_idx, sc in enumerate(scenarios):
+        src, dst, bw = sc['src'], sc['dst'], sc['bw']
+        print(f"\n📌 Senaryo {s_idx+1}/{len(scenarios)}: {src} -> {dst} (Talep: {bw} Mbps)")
+        
+        algos = ["GA", "ACO", "Q-Learning"]
+        
+        for algo_name in algos:
+            costs = []
+            times = []
+            success_count = 0
+            
+            for run_i in range(5): # 5 Tekrar
+                path = None
+                cost = float('inf')
+                
+                try:
+                    with suppress_stdout(): 
+                        t_start = time.time()
+                        
+                        if algo_name == "GA":
+                            ga = GenetikAlgoritmaYolBulucu(
+                                graf=G, fitness=evaluator,
+                                w_Delay=WEIGHTS['w_delay'], w_ReliabilityCost=WEIGHTS['w_rel'], w_Source=WEIGHTS['w_res'],
+                                populasyon_boyutu=50, nesil_sayisi=30
+                            )
+                            path, details = ga.cozum_bul(src, dst, bw)
+                            if details: cost = details['total_cost']
+
+                        elif algo_name == "ACO":
+                            aco = AntColonyRouter(
+                                graph=G, evaluator=evaluator,
+                                w_delay=WEIGHTS['w_delay'], w_rel=WEIGHTS['w_rel'], w_res=WEIGHTS['w_res'],
+                                num_ants=20, num_iters=20
+                            )
+                            path, details = aco.solve(src, dst, bw)
+                            if details: cost = details['total_cost']
+
+                        elif algo_name == "Q-Learning":
+                            agent = QLearningAgent(G, src, dst, epsilon=1.0)
+                            agent.train(episodes=1000, weights=WEIGHTS)
+                            path = agent.get_best_path()
+                            if path and path[-1] == dst:
+                                fit = evaluator.calculate_total_fitness(path, **WEIGHTS)
+                                cost = fit['total_cost']
+                            else:
+                                path = None
+                        
+                        duration = time.time() - t_start
+                    
+                    if path and cost < float('inf'):
+                        costs.append(cost)
+                        times.append(duration)
+                        success_count += 1
+                    else:
+                        costs.append(float('inf'))
+                        times.append(duration)
+
+                except Exception as e:
+                    costs.append(float('inf'))
+                    times.append(0)
+
+            valid_costs = [c for c in costs if c != float('inf')]
+            avg_cost = np.mean(valid_costs) if valid_costs else float('inf')
+            avg_time = np.mean(times)
+            
+            results.append({
+                "Scenario_ID": s_idx + 1,
+                "Algorithm": algo_name,
+                "Success": f"{success_count}/5",
+                "Avg_Time": round(avg_time, 4),
+                "Avg_Cost": round(avg_cost, 4) if avg_cost != float('inf') else "FAIL"
+            })
+            
+            print(f"   > {algo_name.ljust(10)} | Süre: {avg_time:.2f}s | Başarı: {success_count}/5 | Maliyet: {avg_cost:.2f}")
+
+    df_res = pd.DataFrame(results)
+    df_res.to_csv("Benchmark_Sonuclari2.csv", index=False, sep=';')
+    print("\n TEST BİTTİ! Sonuçlar 'Benchmark_Sonuclari2.csv' dosyasına kaydedildi.")
+    display(df_res.head(10))
+
+run_notebook_benchmark()
