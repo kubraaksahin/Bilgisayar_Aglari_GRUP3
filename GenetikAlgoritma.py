@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # AYARLAR
     SRC_NODE = int(input("Başlangıç düğümü seçiniz:"))        
     DST_NODE = int(input("Son düğümü seçiniz:"))       
-   # TALEP_MBPS = int(input("Talep seçiniz:")) 
+    TALEP_MBPS = int(input("Talep seçiniz:")) 
     
     W_DELAY = float(input("Delay agirligi "))
     W_REL   = float(input("Reliability agirligi "))
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         w_Delay=W_DELAY,           
         w_ReliabilityCost=W_REL,   
         w_Source=W_RES,            
-        populasyon_boyutu=100,     
+        populasyon_boyutu=130,     
         nesil_sayisi=50,        
         mutasyon_orani=0.15,     
         elit_sayisi=2
