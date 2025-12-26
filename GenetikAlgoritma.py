@@ -75,46 +75,52 @@ class GenetikAlgoritmaYolBulucu:
 
     def cozum_bul(self, src, dst, talep_mbps):
         populasyon = []
+        butun_nesiller=set()
         for _ in range(self.populasyon_boyutu):
             yol = self._rastgele_yol_uret(src, dst, talep_mbps)
             if yol: populasyon.append(yol)
-            
+                
         if not populasyon: return None, {}
-
-        for _ in range(self.nesil_sayisi):
+        for i in range(self.nesil_sayisi):
            
             puanli_populasyon = sorted([(self._fitness_hesapla(y), y) for y in populasyon], key=lambda x: x[0])
         
             yeni_populasyon = [p[1] for p in puanli_populasyon[:self.elit_sayisi]]
             
-            gen_havuzu = [p[1] for p in puanli_populasyon[:len(puanli_populasyon)//2 + 1]] or [p[1] for p in puanli_populasyon]
-
+            gen_havuzu = [p[1] for p in puanli_populasyon[:int(len(puanli_populasyon) //2 + 1)]] or [p[1] for p in puanli_populasyon]
+            
             while len(yeni_populasyon) < self.populasyon_boyutu:
                 anne = self.rng.choice(gen_havuzu)
                 baba = self.rng.choice(gen_havuzu)
                 cocuk = self._crossover(anne, baba)
                 cocuk = self._mutasyon(cocuk, talep_mbps)
-                yeni_populasyon.append(cocuk)
+                if cocuk not in yeni_populasyon:
+                    yeni_populasyon.append(cocuk)
             
             populasyon = yeni_populasyon
-
-        en_iyi_yol = min(populasyon, key=self._fitness_hesapla)
-        en_iyi_puan = self._fitness_hesapla(en_iyi_yol)
-        
-        return en_iyi_yol, {'total_cost': en_iyi_puan}
+            en_iyi_yol = min(populasyon, key=self._fitness_hesapla)
+            butun_nesiller.add(tuple(en_iyi_yol))
+        butun_nesiller_puan_fitness=[]
+        for eleman in butun_nesiller:
+          #  print(eleman)
+            yol_listesi = list(eleman)
+            butun_nesiller_puanlari = self._fitness_hesapla(yol_listesi)
+            butun_nesiller_puan_fitness.append((butun_nesiller_puanlari, yol_listesi))
+        sirali_liste = sorted(butun_nesiller_puan_fitness, key=lambda x: x[0])
+        return sirali_liste[0][1], {'total_cost':  sirali_liste[0][0]}
 
 if __name__ == "__main__":
     node_file = "BSM307_317_Guz2025_TermProject_NodeData.csv"
     edge_file = "BSM307_317_Guz2025_TermProject_EdgeData.csv"
     
     # AYARLAR
-    SRC_NODE = 8        
-    DST_NODE = 44       
-    TALEP_MBPS = 200.0 
+    SRC_NODE = int(input("Başlangıç düğümü seçiniz:"))        
+    DST_NODE = int(input("Son düğümü seçiniz:"))       
+   # TALEP_MBPS = int(input("Talep seçiniz:")) 
     
-    W_DELAY = 0.33
-    W_REL   = 0.33
-    W_RES   = 0.34
+    W_DELAY = float(input("Delay agirligi "))
+    W_REL   = float(input("Reliability agirligi "))
+    W_RES   = float(input("Resource agirligi "))
 
     print("=== 1. AG TOPOLOJISI YUKLENIYOR ===")
     proje = ProjeAgi(node_file, edge_file)
@@ -131,8 +137,9 @@ if __name__ == "__main__":
         w_Source=W_RES,            
         populasyon_boyutu=100,     
         nesil_sayisi=50,        
-        mutasyon_orani=0.10,     
-        elit_sayisi=2          
+        mutasyon_orani=0.15,     
+        elit_sayisi=2
+    
     )
 
     print(f"\n>> Genetik Algoritma Calisiyor: {SRC_NODE} -> {DST_NODE}")
@@ -160,6 +167,9 @@ if __name__ == "__main__":
             print(f"Bulunan Yol          : {' -> '.join(map(str, en_iyi_yol))}")
         else:
             print("\n>>> SONUC: BASARISIZ (Yol bulunamadi)")
+
+
+# In[ ]:
 
 
 # In[ ]:
