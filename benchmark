@@ -5,6 +5,11 @@ import os
 import sys
 import contextlib
 import random
+from Graf_Model import ProjeAgi
+from Metric_Evaluation import RouteEvaluator
+from GenetikAlgoritma import  GenetikAlgoritmaYolBulucu
+from aco_router import AntColonyRouter
+from q_agent import QLearningAgent
 
 class DummyFile(object):
     def write(self, x): pass
@@ -132,6 +137,6 @@ def run_notebook_benchmark():
     df_res = pd.DataFrame(results)
     df_res.to_csv("Benchmark_Sonuclari2.csv", index=False, sep=';')
     print("\n TEST BİTTİ! Sonuçlar 'Benchmark_Sonuclari2.csv' dosyasına kaydedildi.")
-    display(df_res.head(10))
+    print(df_res.head(10))
 
 run_notebook_benchmark()
