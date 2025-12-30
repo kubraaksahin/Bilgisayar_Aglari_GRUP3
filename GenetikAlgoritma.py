@@ -136,13 +136,13 @@ if __name__ == "__main__":
     edge_file = "BSM307_317_Guz2025_TermProject_EdgeData.csv"
     algoritmayi_baslat()
     # AYARLAR
-    SRC_NODE = 8 #int(input("Başlangıç düğümü seçiniz:"))        
-    DST_NODE = 44 #int(input("Son düğümü seçiniz:"))       
-    TALEP_MBPS = 100 #int(input("Talep seçiniz:")) 
+    SRC_NODE = int(input("Başlangıç düğümü seçiniz:"))        
+    DST_NODE = int(input("Son düğümü seçiniz:"))       
+    TALEP_MBPS = int(input("Talep seçiniz:")) 
     
-    W_DELAY = 0.33 #float(input("Delay agirligi "))
-    W_REL   = 0.33 #float(input("Reliability agirligi "))
-    W_RES   = 0.34 #float(input("Resource agirligi "))
+    W_DELAY = float(input("Delay agirligi "))
+    W_REL   = float(input("Reliability agirligi "))
+    W_RES   = float(input("Resource agirligi "))
 
     print("=== 1. AG TOPOLOJISI YUKLENIYOR ===")
     proje = ProjeAgi(node_file, edge_file)
