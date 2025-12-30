@@ -15,7 +15,7 @@ class DummyFile(object):
     def write(self, x): pass
     def flush(self): pass
 
-@contextlib.contextmanager
+@contextlib.contextmanager    #stdout'u geçici olarak kapatan context manager
 def suppress_stdout():
     save_stdout = sys.stdout
     sys.stdout = DummyFile()
@@ -23,31 +23,31 @@ def suppress_stdout():
     sys.stdout = save_stdout
 
 def load_scenarios(demand_file, node_count=250, limit=20):
-    scenarios = []
+    scenarios = []        #Demand dosyasından senaryoları okur.
     if os.path.exists(demand_file):
         print(f" Demand verisi okunuyor: {demand_file}")
         df = pd.read_csv(demand_file, sep=';', decimal=',')
-        for _, row in df.iterrows():
+        for _, row in df.iterrows():      #CSV içindeki her satırı bir senaryo olarak ekler.
             scenarios.append({
                 "src": int(row["src"]),
                 "dst": int(row["dst"]),
                 "bw": float(row["demand_mbps"])
             })
-    else:
+    else:   
         print("Demand dosyası bulunamadı, rastgele senaryolar üretiliyor...")
-        for _ in range(limit):
+        for _ in range(limit):       # Dosya yoksa rastgele senaryo üret
             s = random.randint(0, node_count - 1)
             d = random.randint(0, node_count - 1)
             while s == d: d = random.randint(0, node_count - 1)
             scenarios.append({"src": s, "dst": d, "bw": random.choice([100, 200, 500])})
     return scenarios[:limit]
 
-def run_notebook_benchmark():
+def run_notebook_benchmark():    # Girdi dosyaları
     node_file = "BSM307_317_Guz2025_TermProject_NodeData.csv"
     edge_file = "BSM307_317_Guz2025_TermProject_EdgeData.csv"
     demand_file = "BSM307_317_Guz2025_TermProject_DemandData.csv"
 
-    print("Grafik Modeli Yükleniyor...")
+    print("Grafik Modeli Yükleniyor...") # Ağ grafiğini oluşturur.
     proje = ProjeAgi(node_file, edge_file)
     G = proje.get_graph()
     evaluator = RouteEvaluator(G)
@@ -56,21 +56,21 @@ def run_notebook_benchmark():
     WEIGHTS = {'w_delay': 0.33, 'w_rel': 0.33, 'w_res': 0.34}
     
     results = []
-    print(f"\n🚀 TEST BAŞLIYOR: {len(scenarios)} Senaryo x 3 Algoritma x 5 Tekrar")
+    print(f"\n TEST BAŞLIYOR: {len(scenarios)} Senaryo x 3 Algoritma x 5 Tekrar")
     print("=" * 60)
 
-    for s_idx, sc in enumerate(scenarios):
+    for s_idx, sc in enumerate(scenarios):    # SENARYO DÖNGÜSÜ
         src, dst, bw = sc['src'], sc['dst'], sc['bw']
-        print(f"\n📌 Senaryo {s_idx+1}/{len(scenarios)}: {src} -> {dst} (Talep: {bw} Mbps)")
+        print(f"\n Senaryo {s_idx+1}/{len(scenarios)}: {src} -> {dst} (Talep: {bw} Mbps)")
         
         algos = ["GA", "ACO", "Q-Learning"]
-        
-        for algo_name in algos:
+                        
+        for algo_name in algos:    # ALGORİTMA DÖNGÜSÜ
             costs = []
             times = []
             success_count = 0
             
-            for run_i in range(5): # 5 Tekrar
+            for run_i in range(5): # AYNI ALGORİTMAYI 5 KEZ ÇALIŞTIRIYOR
                 path = None
                 cost = float('inf')
                 
