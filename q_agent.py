@@ -21,10 +21,11 @@ class QLearningAgent:
         return self.q_table.get((state, action), 0.0)
 
     def choose_action(self, current_node):
+         # Tüm komşuları al
         neighbors = list(self.graph.neighbors(current_node))
         if not neighbors: return None
 
-        # 1. Keşif (Exploration
+        # 1. Keşif (Exploration)
         if random.uniform(0, 1) < self.epsilon:
             return random.choice(neighbors)
         
@@ -44,7 +45,9 @@ class QLearningAgent:
             max_future_q = 0.0
 
         current_q = self.get_q_value(state, action)
-        
+
+        # BELLMAN DENKLEMİ İLE GÜNCELLEME
+        # Formül: Eski Değer + Öğrenme Hızı * (Ödül + Gelecek Tahmini - Eski Değer)
         new_q = current_q + self.alpha * (reward + (self.gamma * max_future_q) - current_q)
         self.q_table[(state, action)] = new_q
 
@@ -58,7 +61,7 @@ class QLearningAgent:
             path = [current_node]
             step_count = 0
 
-            
+              # Ajan Rastgele Geziniyor 
             while current_node != self.destination and step_count < 100:
                 next_node = self.choose_action(current_node)
                 
@@ -68,6 +71,7 @@ class QLearningAgent:
                 path.append(current_node)
                 step_count += 1
             
+            # Hedefe Vardıysa Geriye Dönük Öğreniyor 
             if current_node == self.destination:
             
                 evaluator = RouteEvaluator(self.graph) # Eğer sınıf içindeyse self.evaluator
@@ -79,7 +83,7 @@ class QLearningAgent:
                 else:
                     final_reward = 0
                 
-                
+                # Ödülü sondan başa doğru dağıt
                 running_reward = final_reward
                 for i in range(len(path) - 2, -1, -1):
                     u = path[i]
@@ -95,7 +99,11 @@ class QLearningAgent:
      
 
     def get_best_path(self):
-       
+        
+        """
+        Bu fonksiyon komşuları ID sırasına dizer, böylece sonuç ASLA değişmez.
+        Ayrıca ekrana Q değerlerini basar, böylece ajanın öğrenip öğrenmediğini görürüz.
+        """
         path = [self.source]
         current_node = self.source
         
@@ -121,6 +129,7 @@ class QLearningAgent:
                 print("UYARI: Ajan burası için hiçbir şey öğrenmemiş! Rastgele (ama sıralı) gidiyor.")
             max_q = max(q_values)
         
+            # Puanları eşit olanlardan her zaman İLKİNİ seç
             best_index = q_values.index(max_q)
             best_node = neighbors[best_index]
             
