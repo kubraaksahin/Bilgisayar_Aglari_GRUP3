@@ -1,18 +1,11 @@
 import os
 import sys
-import networkx as nx
 import math
 
 # Proje modülleri
 from Graf_Model import ProjeAgi
 from Metric_Evaluation import RouteEvaluator
-
-# Q-Learning ajanını içe aktar
-try:
-    from q_agent import QLearningAgent
-except ImportError:
-    from q_agent import QLearningAgent
-
+from q_agent import QLearningAgent
 
 def main():
     # Girdi olarak kullanılacak CSV dosyaları
@@ -38,7 +31,7 @@ def main():
         print("Lütfen sayı girin.")
         return
 
-    # Girilen düğümlerin grafikte olup olmadığı kontrolü
+    # Girilen düğümlerin olup olmadığı kontrolü
     if source not in G.nodes or destination not in G.nodes:
         print("HATA: Düğüm bulunamadı.")
         return
